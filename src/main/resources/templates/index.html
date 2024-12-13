@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Search Tree Operations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            margin: 20px;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+            width: 80%;
+        }
+
+        .button-grid button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .button-grid button:hover {
+            background-color: #0056b3;
+        }
+
+        .section {
+            margin: 20px 0;
+            width: 80%;
+        }
+
+        .section form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section input, .section button {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 80%;
+            overflow-wrap: break-word;
+        }
+
+        #action-section {
+            display: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script>
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(section).classList.remove('hidden');
+        }
+
+        async function handleCreateTree(event) {
+            event.preventDefault();
+            const numbers = document.getElementById('numbers').value;
+            const parentId = document.getElementById('parent-id').value;
+            const body = { value: parseInt(numbers) };
+
+            if (parentId) {
+                body.parentId = parseInt(parentId);
+            }
+
+            try {
+                const response = await fetch('/api/tree_nodes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const result = await response.json();
+                document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('result').innerText = `Error: ${error.message}`;
+            }
+        }
+
+        async function handleShowTrees() {
+            try {
+                const response = await fetch('/api/tree_nodes');
+                const result = await response.json();
+                document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('result').innerText = `Error: ${error.message}`;
+            }
+        }
+
+        async function handleModifyTree(event) {
+            event.preventDefault();
+            const id = document.getElementById('modify-id').value;
+            const value = document.getElementById('modify-value').value;
+
+            try {
+                const response = await fetch(`/api/tree_nodes/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ value: parseInt(value) })
+                });
+
+                const result = await response.json();
+                document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('result').innerText = `Error: ${error.message}`;
+            }
+        }
+
+        async function handleDeleteTree(event) {
+            event.preventDefault();
+            const id = document.getElementById('delete-id').value;
+
+            try {
+                await fetch(`/api/tree_nodes/${id}`, { method: 'DELETE' });
+                document.getElementById('result').innerText = `Tree with ID ${id} deleted successfully.`;
+            } catch (error) {
+                document.getElementById('result').innerText = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</head>
+<body>
+<header>
+    <h1>Binary Search Tree Application</h1>
+</header>
+
+<div class="button-grid">
+    <button onclick="showSection('create-tree')">Create Trees</button>
+    <button onclick="handleShowTrees()">Show Trees</button>
+    <button onclick="showSection('modify-tree')">Modify Trees</button>
+    <button onclick="showSection('delete-tree')">Delete Trees</button>
+</div>
+
+<div id="create-tree" class="section hidden">
+    <h2>Create Trees</h2>
+    <form onsubmit="handleCreateTree(event)">
+        <label for="numbers">Enter number:</label>
+        <input type="number" id="numbers" required>
+
+        <label for="parent-id">Parent ID (optional):</label>
+        <input type="number" id="parent-id">
+
+        <button type="submit">Create Tree</button>
+    </form>
+</div>
+
+<div id="modify-tree" class="section hidden">
+    <h2>Modify Trees</h2>
+    <form onsubmit="handleModifyTree(event)">
+        <label for="modify-id">Tree ID:</label>
+        <input type="number" id="modify-id" required>
+
+        <label for="modify-value">New Value:</label>
+        <input type="number" id="modify-value" required>
+
+        <button type="submit">Modify Tree</button>
+    </form>
+</div>
+
+<div id="delete-tree" class="section hidden">
+    <h2>Delete Trees</h2>
+    <form onsubmit="handleDeleteTree(event)">
+        <label for="delete-id">Tree ID:</label>
+        <input type="number" id="delete-id" required>
+
+        <button type="submit">Delete Tree</button>
+    </form>
+</div>
+
+<div id="result" class="result">
+    <h3>Results:</h3>
+    <pre></pre>
+</div>
+</body>
+</html>
