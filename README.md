@@ -61,5 +61,5 @@ The interface uses a grid layout for better usability with buttons like:
 ## How to Run the Application
 1. Clone this repository:
    ```bash
-   git clone <repository-url>
+   git clone [<repository-url>](https://github.com/sireeshakuppampati/BINARY_TREE.git)
 
